@@ -59,6 +59,14 @@ class GameScene extends Phaser.Scene {
         if (this.cursors.space.isDown || this.cursors.up.isDown) {
             this.player.setVelocityY(-200);
         }
+        
+        if (this.cursors.right.isDown) {
+            this.player.setVelocityX(100);
+        } else if (this.cursors.left.isDown) {
+            this.player.setVelocityX(-100);
+        } else {
+            this.player.setVelocityX(0);
+        }
     }
 
     spawnColumns() {
