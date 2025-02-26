@@ -9,7 +9,7 @@ class StartScene extends Phaser.Scene {
 
     create() {
         this.add.text(100, 100, 'Bem-vindo ao Jogo!', { fontSize: '24px', fill: '#fff' });
-        
+
         let playButton = this.add.image(200, 300, 'playButton').setInteractive();
         playButton.setScale(0.5);
 
@@ -30,6 +30,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('col_bottom', 'assets/coluna_bottom.png');
         this.load.image('col_upper', 'assets/coluna_upper.png');
         this.load.image('game_over', 'assets/gameover.png');
+        this.load.image('fire', 'assets/turbo.png'); // Carregando a imagem do fogo
     }
 
     create() {
@@ -48,18 +49,22 @@ class GameScene extends Phaser.Scene {
         this.player.anims.play('fly');
 
         this.cursors = this.input.keyboard.createCursorKeys();
-        
+
         this.columns = this.physics.add.group();
         this.time.addEvent({ delay: 1500, callback: this.spawnColumns, callbackScope: this, loop: true });
 
         this.physics.add.collider(this.player, this.columns, this.gameOver, null, this);
+
+        // Criando um grupo para os fogos
+        this.fires = this.physics.add.group();
     }
 
     update() {
         if (this.cursors.space.isDown || this.cursors.up.isDown) {
             this.player.setVelocityY(-200);
+            this.shootFire(); // Disparar fogo ao pressionar espaço
         }
-        
+
         if (this.cursors.right.isDown) {
             this.player.setVelocityX(100);
         } else if (this.cursors.left.isDown) {
@@ -73,15 +78,27 @@ class GameScene extends Phaser.Scene {
         let colY = Phaser.Math.Between(200, 400);
         let col1 = this.columns.create(400, colY - 150, 'col_upper').setOrigin(0, 1);
         let col2 = this.columns.create(400, colY + 150, 'col_bottom').setOrigin(0, 0);
-        
+
         this.physics.add.existing(col1);
         this.physics.add.existing(col2);
-        
+
         col1.body.setVelocityX(-100);
         col2.body.setVelocityX(-100);
-        
+
         col1.body.allowGravity = false;
         col2.body.allowGravity = false;
+    }
+
+    shootFire() {
+        // Criar um fogo saindo do dragão
+        let fire = this.fires.create(this.player.x + 60, this.player.y, 'fire');
+        fire.setScale(0.5);
+        fire.setVelocityX(200); // Velocidade do fogo para frente
+
+        // Remover fogo após certo tempo
+        this.time.delayedCall(800, () => {
+            fire.destroy();
+        });
     }
 
     gameOver() {
